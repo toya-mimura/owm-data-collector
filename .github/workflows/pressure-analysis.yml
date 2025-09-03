@@ -92,36 +92,40 @@ jobs:
             \"temperature\": 0.3
           }")
         
-        echo "OpenAI API Response:"
-        echo "$RESPONSE"
+        echo "=== API Response ==="
+        echo "$RESPONSE" | jq '.'
         
-        # レスポンスからcontentを抽出
-        ANALYSIS_RESULT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
-        
-        echo "Analysis Result:"
-        echo "$ANALYSIS_RESULT"
-        
-        # JSONとして有効かチェックし、pressure-report.jsonに保存
-        if echo "$ANALYSIS_RESULT" | jq empty 2>/dev/null; then
-          echo "$ANALYSIS_RESULT" > latest/pressure-report.json
-          echo "Successfully created pressure-report.json"
+        # エラーチェック
+        if echo "$RESPONSE" | jq -e '.error' >/dev/null 2>&1; then
+          echo "API Error detected:"
+          echo "$RESPONSE" | jq '.error'
+          
+          # フォールバック作成
+          jq -n '{
+            "meteorological-alert": "エラー",
+            "report": "API接続エラーのため分析不可"
+          }' > latest/pressure-report.json
         else
-          echo "Error: Invalid JSON response from OpenAI"
-          # フォールバックとしてエラー情報を含むJSONを作成
-          jq -n \
-            --arg error "API解析エラー" \
-            --arg alert "不明" \
-            '{
-              "meteorological-alert": $alert,
-              "report": $error
+          # 正常レスポンスの処理
+          ANALYSIS_RESULT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
+          echo "Analysis Result: $ANALYSIS_RESULT"
+          
+          if echo "$ANALYSIS_RESULT" | jq empty 2>/dev/null; then
+            echo "$ANALYSIS_RESULT" > latest/pressure-report.json
+          else
+            # OpenAIレスポンスが無効な場合のフォールバック
+            jq -n --arg content "$ANALYSIS_RESULT" '{
+              "meteorological-alert": "分析済",
+              "report": ($content | .[0:30])
             }' > latest/pressure-report.json
+          fi
         fi
         
-        echo "Final pressure-report.json:"
+        echo "Final result:"
         cat latest/pressure-report.json
         
-        # 一時ファイルを削除
-        rm -f request_payload.json final_request.json
+        # クリーンアップ
+        rm -f prompt.txt request.json
     
     - name: Commit and push changes
       run: |
