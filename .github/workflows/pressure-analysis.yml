@@ -46,19 +46,25 @@ jobs:
         
         # Create the full prompt
         FULL_PROMPT="${PROMPT_TEXT}
-
-データ: ${PRESSURE_DATA}"
+        
+        データ: ${PRESSURE_DATA}"
         
         # Call OpenAI API with proper JSON escaping
-        RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
-          -d "$(jq -n --arg prompt "$FULL_PROMPT" '{
+        # Create JSON payload using jq
+        jq -n \
+          --arg prompt "$FULL_PROMPT" \
+          '{
             "model": "gpt-4o-mini",
             "messages": [{"role": "user", "content": $prompt}],
             "max_tokens": 200,
             "temperature": 0.3
-          }')")
+          }' > /tmp/openai_payload.json
+        
+        # Make API call
+        RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+          -d @/tmp/openai_payload.json)
         
         echo "API Response:"
         echo "$RESPONSE" | jq '.'
