@@ -1,1 +1,4 @@
-null
+{
+  "meteorological-alert": "エラー",
+  "report": "API接続エラーのため分析不可"
+}
