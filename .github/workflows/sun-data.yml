@@ -1,0 +1,85 @@
+name: Sun Data Collection
+
+on:
+  schedule:
+    - cron: '0 19 * * *'  # JST 4:00 AM (UTC 19:00)
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  collect-sun-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create latest directory
+      run: mkdir -p latest
+    
+    - name: Extract sun data from latest weather file
+      run: |
+        # 最新の天気データファイルを取得
+        LATEST_WEATHER_FILE=$(ls -1 data/*.json | sort | tail -1)
+        echo "Latest weather file: $LATEST_WEATHER_FILE"
+        
+        if [ ! -f "$LATEST_WEATHER_FILE" ]; then
+          echo "Error: No weather data files found"
+          exit 1
+        fi
+        
+        # sunrise と sunset のUnixタイムスタンプを抽出
+        SUNRISE_UNIX=$(jq -r '.sys.sunrise' "$LATEST_WEATHER_FILE")
+        SUNSET_UNIX=$(jq -r '.sys.sunset' "$LATEST_WEATHER_FILE")
+        
+        echo "Sunrise Unix timestamp: $SUNRISE_UNIX"
+        echo "Sunset Unix timestamp: $SUNSET_UNIX"
+        
+        # UnixタイムスタンプをJST（日本標準時）に変換
+        SUNRISE_JST=$(TZ='Asia/Tokyo' date -d "@$SUNRISE_UNIX" '+%Y-%m-%d %H:%M:%S')
+        SUNSET_JST=$(TZ='Asia/Tokyo' date -d "@$SUNSET_UNIX" '+%Y-%m-%d %H:%M:%S')
+        
+        echo "Sunrise JST: $SUNRISE_JST"
+        echo "Sunset JST: $SUNSET_JST"
+        
+        # 現在の日付（JST）を取得
+        CURRENT_DATE_JST=$(TZ='Asia/Tokyo' date '+%Y-%m-%d')
+        
+        # sun.jsonファイルを作成
+        jq -n \
+          --arg sunrise_jst "$SUNRISE_JST" \
+          --arg sunset_jst "$SUNSET_JST" \
+          --arg sunrise_unix "$SUNRISE_UNIX" \
+          --arg sunset_unix "$SUNSET_UNIX" \
+          --arg date "$CURRENT_DATE_JST" \
+          '{
+            date: $date,
+            sunrise: {
+              jst: $sunrise_jst,
+              unix: ($sunrise_unix | tonumber)
+            },
+            sunset: {
+              jst: $sunset_jst,
+              unix: ($sunset_unix | tonumber)
+            }
+          }' > latest/sun.json
+        
+        echo "Created latest/sun.json:"
+        cat latest/sun.json
+    
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add latest/sun.json
+        
+        # 変更がある場合のみコミット
+        if ! git diff --staged --quiet; then
+          git commit -m "Update sun data - $(TZ='Asia/Tokyo' date '+%Y-%m-%d')"
+          git push
+          echo "Sun data committed and pushed"
+        else
+          echo "No changes to sun data"
+        fi
