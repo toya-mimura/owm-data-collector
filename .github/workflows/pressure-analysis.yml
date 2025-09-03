@@ -26,7 +26,9 @@ jobs:
           if [ -f "$file" ]; then
             pressure=$(jq -r '.main.pressure' "$file")
             if [ "$pressure" != "null" ]; then
-              if [ "$first" = false ]; then echo ',' >> latest/pressure.json; fi
+              if [ "$first" = false ]; then 
+                echo ',' >> latest/pressure.json
+              fi
               first=false
               jq -n --arg dt "$(basename "$file" .json)" --arg p "$pressure" \
                 '{datetime: $dt, pressure: ($p | tonumber)}' >> latest/pressure.json
@@ -36,59 +38,52 @@ jobs:
         echo ']' >> latest/pressure.json
         echo "Collected $(jq 'length' latest/pressure.json) pressure readings"
     
-    - name: Create request payload
+    - name: Analyze with OpenAI
       run: |
         PROMPT="これは直近24時間の気圧データです。気象病（片頭痛や倦怠感）の発生可能性を分析してください。
 
 データ: $(cat latest/pressure.json | jq -c .)
 
-以下のJSON形式のみで回答してください：
+以下のJSON形式のみで回答してください:
 {
   \"meteorological-alert\": \"XX%\",
   \"report\": \"30文字以内の分析内容\"
 }"
         
-        jq -n --arg prompt "$PROMPT" '{
-          "model": "gpt-4o-mini",
-          "messages": [{"role": "user", "content": $prompt}],
-          "max_tokens": 200,
-          "temperature": 0.3
-        }' > request.json
-    
-    - name: Call OpenAI API
-      run: |
-        curl -s -X POST "https://api.openai.com/v1/chat/completions" \
+        RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
-          -d @request.json > response.json
+          -d "{
+            \"model\": \"gpt-4o-mini\",
+            \"messages\": [{\"role\": \"user\", \"content\": \"$PROMPT\"}],
+            \"max_tokens\": 200,
+            \"temperature\": 0.3
+          }")
         
         echo "API Response:"
-        cat response.json | jq '.'
-    
-    - name: Process response
-      run: |
-        if jq -e '.error' response.json >/dev/null; then
-          echo "API Error:"
-          jq '.error' response.json
-          jq -n '{"meteorological-alert": "エラー", "report": "API接続エラーのため分析不可"}' > latest/pressure-report.json
+        echo "$RESPONSE" | jq '.'
+        
+        if echo "$RESPONSE" | jq -e '.error' >/dev/null; then
+          jq -n '{
+            "meteorological-alert": "エラー",
+            "report": "API接続エラーのため分析不可"
+          }' > latest/pressure-report.json
         else
-          CONTENT=$(jq -r '.choices[0].message.content' response.json)
-          echo "Analysis result: $CONTENT"
-          
-          # JSONマークダウン記法を除去
+          CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
           CLEAN_JSON=$(echo "$CONTENT" | sed 's/```json//g' | sed 's/```//g' | xargs)
           
           if echo "$CLEAN_JSON" | jq empty 2>/dev/null; then
             echo "$CLEAN_JSON" > latest/pressure-report.json
           else
-            jq -n --arg content "$CONTENT" '{"meteorological-alert": "分析済", "report": ($content | .[0:30])}' > latest/pressure-report.json
+            jq -n --arg content "$CONTENT" '{
+              "meteorological-alert": "分析済",
+              "report": ($content | .[0:30])
+            }' > latest/pressure-report.json
           fi
         fi
         
-        echo "Final result:"
+        echo "Result:"
         cat latest/pressure-report.json
-        
-        rm -f request.json response.json
     
     - name: Commit and push
       run: |
