@@ -18,12 +18,13 @@ jobs:
     - name: Create data directory
       run: mkdir -p data
     
-    - name: Get current timestamp
+    - name: Get current timestamp (JST)
       id: timestamp
       run: |
-        TIMESTAMP=$(date -u +"%Y-%m%d-%H%M")
+        # 日本時間でタイムスタンプを生成
+        TIMESTAMP=$(TZ='Asia/Tokyo' date +"%Y-%m%d-%H%M")
         echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
-        echo "Current timestamp: $TIMESTAMP"
+        echo "Current timestamp (JST): $TIMESTAMP"
     
     - name: Fetch weather data
       run: |
@@ -43,9 +44,9 @@ jobs:
     - name: Clean old files
       run: |
         # 24時間前のタイムスタンプを計算（日本時間基準）
-        CUTOFF_TIME=$(date -d '24 hours ago' +"%Y-%m%d-%H%M")
+        CUTOFF_TIME=$(TZ='Asia/Tokyo' date -d '24 hours ago' +"%Y-%m%d-%H%M")
         
-        echo "Cutoff time: $CUTOFF_TIME"
+        echo "Cutoff time (JST): $CUTOFF_TIME"
         echo "Files before cleanup:"
         ls -la data/ || echo "No data directory found"
         
