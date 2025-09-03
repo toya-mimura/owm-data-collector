@@ -40,45 +40,55 @@ jobs:
     
     - name: Analyze with OpenAI
       run: |
+        # Read prompt and pressure data
         PROMPT_TEXT=$(cat latest/prompt-pressure-report.txt)
-        PRESSURE_DATA=$(cat latest/pressure.json | jq -c .)
-        PROMPT="${PROMPT_TEXT}
-
-データ: ${PRESSURE_DATA}"
+        PRESSURE_DATA=$(cat latest/pressure.json)
         
+        # Create the full prompt
+        FULL_PROMPT="${PROMPT_TEXT}
+        
+        データ: ${PRESSURE_DATA}"
+        
+        # Call OpenAI API with proper JSON escaping
+        # Create JSON payload using jq
+        jq -n \
+          --arg prompt "$FULL_PROMPT" \
+          '{
+            "model": "gpt-4o-mini",
+            "messages": [{"role": "user", "content": $prompt}],
+            "max_tokens": 200,
+            "temperature": 0.3
+          }' > /tmp/openai_payload.json
+        
+        # Make API call
         RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
-          -d "{
-            \"model\": \"gpt-4o-mini\",
-            \"messages\": [{\"role\": \"user\", \"content\": \"$PROMPT\"}],
-            \"max_tokens\": 200,
-            \"temperature\": 0.3
-          }")
+          -d @/tmp/openai_payload.json)
         
         echo "API Response:"
         echo "$RESPONSE" | jq '.'
         
+        # Check for API errors
         if echo "$RESPONSE" | jq -e '.error' >/dev/null; then
+          echo "API Error detected"
           jq -n '{
             "meteorological-alert": "エラー",
             "report": "API接続エラーのため分析不可"
           }' > latest/pressure-report.json
         else
-          CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
-          CLEAN_JSON=$(echo "$CONTENT" | sed 's/```json//g' | sed 's/```//g' | xargs)
+          # Extract content and save as JSON
+          CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "分析結果の取得に失敗"')
+          echo "OpenAI Response Content: $CONTENT"
           
-          if echo "$CLEAN_JSON" | jq empty 2>/dev/null; then
-            echo "$CLEAN_JSON" > latest/pressure-report.json
-          else
-            jq -n --arg content "$CONTENT" '{
-              "meteorological-alert": "分析済",
-              "report": ($content | .[0:30])
-            }' > latest/pressure-report.json
-          fi
+          # Create structured output based on expected format
+          jq -n --arg content "$CONTENT" '{
+            "meteorological-alert": "分析済",
+            "report": $content
+          }' > latest/pressure-report.json
         fi
         
-        echo "Result:"
+        echo "Final result:"
         cat latest/pressure-report.json
     
     - name: Commit and push
