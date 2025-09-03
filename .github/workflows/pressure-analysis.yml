@@ -77,14 +77,21 @@ jobs:
             "report": "API接続エラーのため分析不可"
           }' > latest/pressure-report.json
         else
-          # Extract content and save as JSON
+          # Extract content and parse according to prompt format
           CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "分析結果の取得に失敗"')
           echo "OpenAI Response Content: $CONTENT"
           
-          # Create structured output based on expected format
-          jq -n --arg content "$CONTENT" '{
-            "meteorological-alert": "分析済",
-            "report": $content
+          # Parse the response: line 1 = percentage, line 2 = description
+          PERCENTAGE=$(echo "$CONTENT" | head -n1 | xargs)
+          DESCRIPTION=$(echo "$CONTENT" | tail -n+2 | xargs)
+          
+          echo "Parsed percentage: $PERCENTAGE"
+          echo "Parsed description: $DESCRIPTION"
+          
+          # Create structured output with parsed values
+          jq -n --arg alert "$PERCENTAGE" --arg report "$DESCRIPTION" '{
+            "meteorological-alert": $alert,
+            "report": $report
           }' > latest/pressure-report.json
         fi
         
