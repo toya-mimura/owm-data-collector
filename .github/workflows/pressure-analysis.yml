@@ -119,6 +119,9 @@ jobs:
         
         echo "Final pressure-report.json:"
         cat latest/pressure-report.json
+        
+        # 一時ファイルを削除
+        rm -f request_payload.json final_request.json
     
     - name: Commit and push changes
       run: |
