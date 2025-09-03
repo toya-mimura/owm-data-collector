@@ -1,4 +1,4 @@
 {
-  "meteorological-alert": "エラー",
-  "report": "API接続エラーのため分析不可"
+  "meteorological-alert": "分析済",
+  "report": "75%  \n気圧の低下が影響する可能性あり"
 }
