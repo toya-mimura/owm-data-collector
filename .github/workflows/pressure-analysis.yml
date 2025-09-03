@@ -53,46 +53,42 @@ jobs:
         
         echo "Pressure data collection completed:"
         echo "Total entries: $(jq 'length' latest/pressure.json)"
-        echo "First few entries:"
-        jq '.[0:3]' latest/pressure.json
     
     - name: Analyze with OpenAI API
       run: |
         echo "Sending data to OpenAI for analysis..."
         
         # pressure.jsonの内容を読み取り
-        PRESSURE_DATA=$(cat latest/pressure.json)
+        PRESSURE_DATA=$(cat latest/pressure.json | jq -c .)
+        
+        # プロンプトファイルの内容を読み取り
+        PROMPT_TEXT=$(cat latest/prompt-pressure-report.txt)
         
         # OpenAI APIに送信するプロンプトを作成
-        PROMPT="これは直近24時間の、指定した地域における気圧のデータをOpenWeatherMapから10分毎に取得したものです。
-        1. このデータを分析し、現在「気象病（片頭痛や倦怠感）」が発生する可能性があるか、30字以内でレポートを作成。
-        2. データと「1」の分析より、気象病の発生可能性を「%」で出力
-        3. 「1」と「2」で得た結果を、下記のJSON形式で返す。
+        FULL_PROMPT="${PROMPT_TEXT}
 
-        {
-         \"meteorological-alert\": \"95%\",
-         \"report\": \"分析内容（30文字以内、日本語で）\"
-        }
+データ: ${PRESSURE_DATA}
 
-        データ: $PRESSURE_DATA"
+回答は以下のJSON形式のみで返してください：
+{
+  \"meteorological-alert\": \"XX%\",
+  \"report\": \"30文字以内の分析内容\"
+}"
         
         # OpenAI APIを呼び出し
         RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
-          -d "{
-            \"model\": \"gpt-4o-mini\",
-            \"messages\": [
-              {
-                \"role\": \"user\",
-                \"content\": \"$PROMPT\"
-              }
-            ],
-            \"max_tokens\": 200,
-            \"temperature\": 0.3
-          }")
+          -d "$(jq -n \
+            --arg content "$FULL_PROMPT" \
+            '{
+              "model": "gpt-4o-mini",
+              "messages": [{"role": "user", "content": $content}],
+              "max_tokens": 200,
+              "temperature": 0.3
+            }')")
         
-        echo "=== API Response ==="
+        echo "=== OpenAI API Response ==="
         echo "$RESPONSE" | jq '.'
         
         # エラーチェック
@@ -106,26 +102,33 @@ jobs:
             "report": "API接続エラーのため分析不可"
           }' > latest/pressure-report.json
         else
-          # 正常レスポンスの処理
+          # 正常レスポンスからcontentを取得
           ANALYSIS_RESULT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
-          echo "Analysis Result: $ANALYSIS_RESULT"
+          echo "=== Analysis Result ==="
+          echo "$ANALYSIS_RESULT"
           
+          # JSONかどうかをチェック
           if echo "$ANALYSIS_RESULT" | jq empty 2>/dev/null; then
+            # 有効なJSONの場合はそのまま保存
             echo "$ANALYSIS_RESULT" > latest/pressure-report.json
           else
-            # OpenAIレスポンスが無効な場合のフォールバック
-            jq -n --arg content "$ANALYSIS_RESULT" '{
-              "meteorological-alert": "分析済",
-              "report": ($content | .[0:30])
-            }' > latest/pressure-report.json
+            # JSONでない場合は```jsonマークダウンを除去して再試行
+            CLEANED_JSON=$(echo "$ANALYSIS_RESULT" | sed 's/```json//g' | sed 's/```//g' | xargs)
+            
+            if echo "$CLEANED_JSON" | jq empty 2>/dev/null; then
+              echo "$CLEANED_JSON" > latest/pressure-report.json
+            else
+              # それでもダメな場合はフォールバック
+              jq -n --arg content "$ANALYSIS_RESULT" '{
+                "meteorological-alert": "分析済",
+                "report": ($content | .[0:30])
+              }' > latest/pressure-report.json
+            fi
           fi
         fi
         
-        echo "Final result:"
+        echo "=== Final Result ==="
         cat latest/pressure-report.json
-        
-        # クリーンアップ
-        rm -f prompt.txt request.json
     
     - name: Commit and push changes
       run: |
