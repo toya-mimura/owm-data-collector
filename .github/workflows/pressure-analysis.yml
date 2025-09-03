@@ -40,15 +40,11 @@ jobs:
     
     - name: Analyze with OpenAI
       run: |
-        PROMPT="これは直近24時間の気圧データです。気象病（片頭痛や倦怠感）の発生可能性を分析してください。
+        PROMPT_TEXT=$(cat latest/prompt-pressure-report.txt)
+        PRESSURE_DATA=$(cat latest/pressure.json | jq -c .)
+        PROMPT="${PROMPT_TEXT}
 
-データ: $(cat latest/pressure.json | jq -c .)
-
-以下のJSON形式のみで回答してください:
-{
-  \"meteorological-alert\": \"XX%\",
-  \"report\": \"30文字以内の分析内容\"
-}"
+データ: ${PRESSURE_DATA}"
         
         RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
           -H "Content-Type: application/json" \
