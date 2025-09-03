@@ -1,6 +1,6 @@
 # Weather Data Collector
 
-OpenWeatherMapから10分毎に天気データを取得し、JSONファイルとして保存するリポジトリです。
+[OpenWeatherMap](https://openweathermap.org/)から10分毎に天気データを取得し、JSONファイルとして保存するリポジトリです。
 
 ## 機能
 
@@ -14,12 +14,13 @@ OpenWeatherMapから10分毎に天気データを取得し、JSONファイルと
 1. このリポジトリをフォーク
 2. GitHub Secretsに以下を設定：
    - `OPENWEATHER_API_KEY`: OpenWeatherMapのAPIキー
-   - `LAT`: 取得地点の緯度
-   - `LON`: 取得地点の経度
+   - `LAT`: 取得地点の緯度（例：35.443707）
+   - `LON`: 取得地点の経度（例：139.638031）
+      - 本リポジトリでは例として「横浜」の緯度経度を利用中。
 
 ## データ構造
-
-各JSONファイルにはOpenWeatherMapの標準レスポンスが含まれます：
+- 各JSONファイルにはOpenWeatherMapの標準レスポンスが含まれます：
+- 参考：https://openweathermap.org/current
 
 ```json
 {
@@ -31,4 +32,4 @@ OpenWeatherMapから10分毎に天気データを取得し、JSONファイルと
 ```
 
 ## 謝辞
-- このサイトの天気情報はOpenWeatherMapから取得しています / Powered by OpenWeatherMap
+- このサイトの天気情報はOpenWeatherMap(https://openweathermap.org/)から取得しています / Powered by OpenWeatherMap
