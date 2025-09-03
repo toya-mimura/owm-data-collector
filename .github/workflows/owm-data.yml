@@ -1,0 +1,82 @@
+name: Weather Data Collection
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 10分毎に実行
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  collect-weather-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create data directory
+      run: mkdir -p data
+    
+    - name: Get current timestamp
+      id: timestamp
+      run: |
+        TIMESTAMP=$(date -u +"%Y-%m%d-%H%M")
+        echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+        echo "Current timestamp: $TIMESTAMP"
+    
+    - name: Fetch weather data
+      run: |
+        FILENAME="data/${{ steps.timestamp.outputs.timestamp }}.json"
+        curl -s "https://api.openweathermap.org/data/2.5/weather?lat=${{ secrets.LAT }}&lon=${{ secrets.LON }}&appid=${{ secrets.OPENWEATHER_API_KEY }}&units=metric" \
+          -o "$FILENAME"
+        
+        # APIレスポンスが有効なJSONかチェック
+        if ! jq empty "$FILENAME" 2>/dev/null; then
+          echo "Error: Invalid JSON response from API"
+          cat "$FILENAME"
+          exit 1
+        fi
+        
+        echo "Weather data saved to $FILENAME"
+    
+    - name: Clean old files
+      run: |
+        # 24時間前のタイムスタンプを計算（144ファイル = 24時間 × 6回/時間）
+        CUTOFF_TIME=$(date -u -d '24 hours ago' +"%Y-%m%d-%H%M")
+        
+        echo "Cutoff time: $CUTOFF_TIME"
+        echo "Files before cleanup:"
+        ls -la data/ || echo "No data directory found"
+        
+        # 古いファイルを削除
+        for file in data/*.json; do
+          if [ -f "$file" ]; then
+            # ファイル名からタイムスタンプを抽出
+            filename=$(basename "$file" .json)
+            if [[ "$filename" < "$CUTOFF_TIME" ]]; then
+              echo "Deleting old file: $file"
+              rm "$file"
+            fi
+          fi
+        done
+        
+        echo "Files after cleanup:"
+        ls -la data/ || echo "No files remaining"
+        echo "Total files: $(ls -1 data/*.json 2>/dev/null | wc -l)"
+    
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add data/
+        
+        # 変更がある場合のみコミット
+        if ! git diff --staged --quiet; then
+          git commit -m "Update weather data - ${{ steps.timestamp.outputs.timestamp }}"
+          git push
+          echo "Changes committed and pushed"
+        else
+          echo "No changes to commit"
+        fi
