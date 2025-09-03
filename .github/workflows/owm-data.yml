@@ -43,7 +43,7 @@ jobs:
     - name: Clean old files
       run: |
         # 24時間前のタイムスタンプを計算（日本時間基準）
-        CUTOFF_TIME=$(TZ='Asia/Tokyo' date -d '24 hours ago' +"%Y-%m%d-%H%M")
+        CUTOFF_TIME=$(date -d '24 hours ago' +"%Y-%m%d-%H%M")
         
         echo "Cutoff time: $CUTOFF_TIME"
         echo "Files before cleanup:"
