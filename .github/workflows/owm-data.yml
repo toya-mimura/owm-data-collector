@@ -15,8 +15,10 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Create data directory
-      run: mkdir -p data
+    - name: Create data directories
+      run: |
+        mkdir -p data
+        mkdir -p latest
     
     - name: Get current timestamp (JST)
       id: timestamp
@@ -40,6 +42,27 @@ jobs:
         fi
         
         echo "Weather data saved to $FILENAME"
+    
+    - name: Create latest.json
+      run: |
+        # 最新のJSONファイルを取得
+        LATEST_FILE=$(ls -1 data/*.json | sort | tail -1)
+        echo "Latest file: $LATEST_FILE"
+        
+        # 必要なデータを抽出してlatest.jsonを作成
+        jq '{
+          weather_id: .weather[0].id,
+          weather_description: .weather[0].description,
+          temp: .main.temp,
+          feels_like: .main.feels_like,
+          humidity: .main.humidity,
+          wind_speed: .wind.speed,
+          wind_deg: .wind.deg,
+          updated_at: "'${{ steps.timestamp.outputs.timestamp }}'"
+        }' "$LATEST_FILE" > latest/latest.json
+        
+        echo "Created latest/latest.json:"
+        cat latest/latest.json
     
     - name: Clean old files
       run: |
@@ -71,7 +94,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         
-        git add data/
+        git add data/ latest/
         
         # 変更がある場合のみコミット
         if ! git diff --staged --quiet; then
