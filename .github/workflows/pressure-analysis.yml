@@ -1,0 +1,137 @@
+name: Pressure Analysis
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # 30分毎に実行
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  analyze-pressure:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create latest directory
+      run: mkdir -p latest
+    
+    - name: Collect pressure data
+      run: |
+        echo "Collecting pressure data from all JSON files..."
+        
+        # pressure.jsonを初期化
+        echo '[' > latest/pressure.json
+        first_entry=true
+        
+        # dataディレクトリ内の全JSONファイルを時系列順にソート
+        for file in $(ls -1 data/*.json | sort); do
+          if [ -f "$file" ]; then
+            filename=$(basename "$file" .json)
+            pressure=$(jq -r '.main.pressure' "$file")
+            
+            # 有効な数値かチェック
+            if [ "$pressure" != "null" ] && [ "$pressure" != "" ]; then
+              # JSON配列の区切り文字処理
+              if [ "$first_entry" = false ]; then
+                echo ',' >> latest/pressure.json
+              fi
+              first_entry=false
+              
+              # JSON形式でデータを追加
+              jq -n \
+                --arg datetime "$filename" \
+                --arg pressure "$pressure" \
+                '{datetime: $datetime, pressure: ($pressure | tonumber)}' >> latest/pressure.json
+            fi
+          fi
+        done
+        
+        echo ']' >> latest/pressure.json
+        
+        echo "Pressure data collection completed:"
+        echo "Total entries: $(jq 'length' latest/pressure.json)"
+        echo "First few entries:"
+        jq '.[0:3]' latest/pressure.json
+    
+    - name: Analyze with OpenAI API
+      run: |
+        echo "Sending data to OpenAI for analysis..."
+        
+        # pressure.jsonの内容を読み取り
+        PRESSURE_DATA=$(cat latest/pressure.json)
+        
+        # OpenAI APIに送信するプロンプトを作成
+        PROMPT="これは直近24時間の、指定した地域における気圧のデータをOpenWeatherMapから10分毎に取得したものです。
+        1. このデータを分析し、現在「気象病（片頭痛や倦怠感）」が発生する可能性があるか、30字以内でレポートを作成。
+        2. データと「1」の分析より、気象病の発生可能性を「%」で出力
+        3. 「1」と「2」で得た結果を、下記のJSON形式で返す。
+
+        {
+         \"meteorological-alert\": \"95%\",
+         \"report\": \"分析内容（30文字以内、日本語で）\"
+        }
+
+        データ: $PRESSURE_DATA"
+        
+        # OpenAI APIを呼び出し
+        RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+          -d "{
+            \"model\": \"gpt-4o-mini\",
+            \"messages\": [
+              {
+                \"role\": \"user\",
+                \"content\": \"$PROMPT\"
+              }
+            ],
+            \"max_tokens\": 200,
+            \"temperature\": 0.3
+          }")
+        
+        echo "OpenAI API Response:"
+        echo "$RESPONSE"
+        
+        # レスポンスからcontentを抽出
+        ANALYSIS_RESULT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
+        
+        echo "Analysis Result:"
+        echo "$ANALYSIS_RESULT"
+        
+        # JSONとして有効かチェックし、pressure-report.jsonに保存
+        if echo "$ANALYSIS_RESULT" | jq empty 2>/dev/null; then
+          echo "$ANALYSIS_RESULT" > latest/pressure-report.json
+          echo "Successfully created pressure-report.json"
+        else
+          echo "Error: Invalid JSON response from OpenAI"
+          # フォールバックとしてエラー情報を含むJSONを作成
+          jq -n \
+            --arg error "API解析エラー" \
+            --arg alert "不明" \
+            '{
+              "meteorological-alert": $alert,
+              "report": $error
+            }' > latest/pressure-report.json
+        fi
+        
+        echo "Final pressure-report.json:"
+        cat latest/pressure-report.json
+    
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add latest/pressure.json latest/pressure-report.json
+        
+        # 変更がある場合のみコミット
+        if ! git diff --staged --quiet; then
+          git commit -m "Update pressure analysis - $(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M')"
+          git push
+          echo "Pressure analysis committed and pushed"
+        else
+          echo "No changes to pressure analysis"
+        fi
