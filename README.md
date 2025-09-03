@@ -32,4 +32,4 @@
 ```
 
 ## 謝辞
-- このサイトの天気情報はOpenWeatherMap(https://openweathermap.org/)から取得しています / Powered by OpenWeatherMap
+- このサイトの天気情報はOpenWeatherMap(`https://openweathermap.org/`)から取得しています / Powered by OpenWeatherMap
