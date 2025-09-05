@@ -1,10 +1,10 @@
 {
-  "weather_id": 522,
-  "weather_description": "heavy intensity shower rain",
-  "temp": 25.46,
-  "feels_like": 26.49,
-  "humidity": 93,
-  "wind_speed": 10.29,
-  "wind_deg": 190,
-  "updated_at": "2025-0905-1206"
+  "weather_id": 701,
+  "weather_description": "mist",
+  "temp": 25.83,
+  "feels_like": 26.84,
+  "humidity": 91,
+  "wind_speed": 7.2,
+  "wind_deg": 220,
+  "updated_at": "2025-0905-1235"
 }
