@@ -1,10 +1,10 @@
 {
-  "weather_id": 211,
-  "weather_description": "thunderstorm",
+  "weather_id": 500,
+  "weather_description": "light rain",
   "temp": 25.09,
   "feels_like": 26,
   "humidity": 90,
-  "wind_speed": 4.12,
+  "wind_speed": 5.14,
   "wind_deg": 50,
-  "updated_at": "2025-0911-2216"
+  "updated_at": "2025-0911-2233"
 }
