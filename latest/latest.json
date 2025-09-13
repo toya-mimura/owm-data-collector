@@ -1,10 +1,10 @@
 {
-  "weather_id": 520,
-  "weather_description": "light intensity shower rain",
+  "weather_id": 803,
+  "weather_description": "broken clouds",
   "temp": 28.22,
   "feels_like": 32.66,
   "humidity": 80,
   "wind_speed": 7.2,
   "wind_deg": 200,
-  "updated_at": "2025-0913-1551"
+  "updated_at": "2025-0913-1601"
 }
