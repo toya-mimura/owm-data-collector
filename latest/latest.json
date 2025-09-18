@@ -2,9 +2,9 @@
   "weather_id": 521,
   "weather_description": "shower rain",
   "temp": 22.39,
-  "feels_like": 23.06,
-  "humidity": 91,
+  "feels_like": 23.03,
+  "humidity": 90,
   "wind_speed": 8.23,
   "wind_deg": 70,
-  "updated_at": "2025-0919-0153"
+  "updated_at": "2025-0919-0201"
 }
