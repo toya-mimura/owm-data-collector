@@ -1,10 +1,10 @@
 {
   "weather_id": 804,
   "weather_description": "overcast clouds",
-  "temp": 24.43,
-  "feels_like": 24.78,
-  "humidity": 71,
-  "wind_speed": 3.49,
-  "wind_deg": 93,
-  "updated_at": "2025-1008-1929"
+  "temp": 24.11,
+  "feels_like": 24.51,
+  "humidity": 74,
+  "wind_speed": 3.91,
+  "wind_deg": 91,
+  "updated_at": "2025-1008-1941"
 }
