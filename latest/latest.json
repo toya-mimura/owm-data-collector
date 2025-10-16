@@ -1,10 +1,10 @@
 {
   "weather_id": 501,
   "weather_description": "moderate rain",
-  "temp": 20.45,
-  "feels_like": 20.98,
+  "temp": 20.28,
+  "feels_like": 20.79,
   "humidity": 93,
-  "wind_speed": 3.6,
-  "wind_deg": 170,
-  "updated_at": "2025-1016-1812"
+  "wind_speed": 3.09,
+  "wind_deg": 180,
+  "updated_at": "2025-1016-1833"
 }
