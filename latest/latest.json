@@ -1,10 +1,10 @@
 {
   "weather_id": 801,
   "weather_description": "few clouds",
-  "temp": 21.45,
-  "feels_like": 21.61,
-  "humidity": 75,
+  "temp": 21.26,
+  "feels_like": 21.43,
+  "humidity": 76,
   "wind_speed": 5.14,
   "wind_deg": 90,
-  "updated_at": "2025-1017-1751"
+  "updated_at": "2025-1017-1801"
 }
