@@ -1,4 +1,4 @@
 {
-  "meteorological-alert": "65%",
-  "report": "気圧低下で頭痛の可能性あり"
+  "meteorological-alert": "75%",
+  "report": "気圧の変動があり注意が必要です。"
 }
