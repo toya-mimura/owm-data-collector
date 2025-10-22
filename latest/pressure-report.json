@@ -1,4 +1,4 @@
 {
-  "meteorological-alert": "85%",
-  "report": "気圧の変動が少なく安定している。"
+  "meteorological-alert": "発生可能性：80%",
+  "report": "安定した気圧で症状が出やすい。"
 }
