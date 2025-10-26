@@ -1,4 +1,4 @@
 {
-  "meteorological-alert": "75%",
-  "report": "気圧低下で体調不良の可能性あり"
+  "meteorological-alert": "65%",
+  "report": "気圧低下で頭痛のリスク増加。"
 }
