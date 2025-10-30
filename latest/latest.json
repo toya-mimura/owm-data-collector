@@ -5,6 +5,6 @@
   "feels_like": 15.36,
   "humidity": 79,
   "wind_speed": 3.6,
-  "wind_deg": 10,
-  "updated_at": "2025-1030-2237"
+  "wind_deg": 360,
+  "updated_at": "2025-1030-2250"
 }
