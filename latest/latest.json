@@ -1,10 +1,10 @@
 {
   "weather_id": 800,
   "weather_description": "clear sky",
-  "temp": 15.63,
-  "feels_like": 14.79,
+  "temp": 15.48,
+  "feels_like": 14.62,
   "humidity": 59,
   "wind_speed": 6.17,
   "wind_deg": 340,
-  "updated_at": "2025-1106-2344"
+  "updated_at": "2025-1106-2351"
 }
