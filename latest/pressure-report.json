@@ -1,4 +1,4 @@
 {
-  "meteorological-alert": "70%",
-  "report": "気圧の変動が少なく影響あり。"
+  "meteorological-alert": "発生可能性：80%",
+  "report": "低気圧の影響で体調不良の可能性あり。"
 }
