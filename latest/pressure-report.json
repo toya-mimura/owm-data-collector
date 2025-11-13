@@ -1,4 +1,4 @@
 {
-  "meteorological-alert": "85%",
-  "report": "気圧低下で症状悪化の可能性あり"
+  "meteorological-alert": "65%",
+  "report": "気圧低下により影響が懸念される。"
 }
