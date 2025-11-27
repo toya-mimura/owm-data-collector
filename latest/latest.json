@@ -2,9 +2,9 @@
   "weather_id": 501,
   "weather_description": "moderate rain",
   "temp": 14.03,
-  "feels_like": 13.55,
-  "humidity": 79,
-  "wind_speed": 3.6,
-  "wind_deg": 260,
-  "updated_at": "2025-1127-1939"
+  "feels_like": 13.5,
+  "humidity": 77,
+  "wind_speed": 1.03,
+  "wind_deg": 0,
+  "updated_at": "2025-1127-1947"
 }
