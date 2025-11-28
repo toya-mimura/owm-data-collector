@@ -2,9 +2,9 @@
   "weather_id": 802,
   "weather_description": "scattered clouds",
   "temp": 11.55,
-  "feels_like": 10.17,
-  "humidity": 54,
-  "wind_speed": 8.23,
-  "wind_deg": 330,
-  "updated_at": "2025-1129-0140"
+  "feels_like": 10.2,
+  "humidity": 55,
+  "wind_speed": 8.75,
+  "wind_deg": 340,
+  "updated_at": "2025-1129-0152"
 }
