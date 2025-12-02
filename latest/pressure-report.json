@@ -1,4 +1,4 @@
 {
-  "meteorological-alert": "55%",
-  "report": "気圧の変動が続いており注意が必要。"
+  "meteorological-alert": "75%",
+  "report": "気圧低下で体調不良の可能性あり"
 }
