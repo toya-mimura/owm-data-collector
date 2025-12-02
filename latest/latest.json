@@ -2,9 +2,9 @@
   "weather_id": 502,
   "weather_description": "heavy intensity rain",
   "temp": 11.23,
-  "feels_like": 10.73,
-  "humidity": 89,
+  "feels_like": 10.78,
+  "humidity": 91,
   "wind_speed": 2.06,
   "wind_deg": 30,
-  "updated_at": "2025-1203-0601"
+  "updated_at": "2025-1203-0614"
 }
