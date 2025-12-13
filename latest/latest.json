@@ -2,9 +2,9 @@
   "weather_id": 500,
   "weather_description": "light rain",
   "temp": 4.49,
-  "feels_like": -0.56,
+  "feels_like": -0.22,
   "humidity": 88,
-  "wind_speed": 8.23,
+  "wind_speed": 7.2,
   "wind_deg": 10,
-  "updated_at": "2025-1214-0139"
+  "updated_at": "2025-1214-0147"
 }
