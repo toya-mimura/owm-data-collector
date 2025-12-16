@@ -3,8 +3,8 @@
   "weather_description": "few clouds",
   "temp": 5,
   "feels_like": 3.9,
-  "humidity": 65,
+  "humidity": 70,
   "wind_speed": 1.54,
-  "wind_deg": 320,
-  "updated_at": "2025-1217-0643"
+  "wind_deg": 310,
+  "updated_at": "2025-1217-0650"
 }
