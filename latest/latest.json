@@ -2,9 +2,9 @@
   "weather_id": 701,
   "weather_description": "mist",
   "temp": 10,
-  "feels_like": 8.46,
+  "feels_like": 10,
   "humidity": 100,
-  "wind_speed": 3.09,
-  "wind_deg": 270,
-  "updated_at": "2025-1221-0213"
+  "wind_speed": 1.03,
+  "wind_deg": 0,
+  "updated_at": "2025-1221-0225"
 }
