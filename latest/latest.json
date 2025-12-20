@@ -1,10 +1,10 @@
 {
   "weather_id": 520,
   "weather_description": "light intensity shower rain",
-  "temp": 12.03,
-  "feels_like": 11.3,
-  "humidity": 77,
+  "temp": 11.38,
+  "feels_like": 10.66,
+  "humidity": 80,
   "wind_speed": 2.57,
   "wind_deg": 10,
-  "updated_at": "2025-1220-1752"
+  "updated_at": "2025-1220-1800"
 }
