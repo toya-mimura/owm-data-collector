@@ -1,10 +1,10 @@
 {
   "weather_id": 701,
   "weather_description": "mist",
-  "temp": 11.25,
-  "feels_like": 10.73,
-  "humidity": 88,
-  "wind_speed": 2.06,
-  "wind_deg": 120,
-  "updated_at": "2025-1221-0901"
+  "temp": 12.19,
+  "feels_like": 11.92,
+  "humidity": 94,
+  "wind_speed": 1.54,
+  "wind_deg": 100,
+  "updated_at": "2025-1221-0943"
 }
