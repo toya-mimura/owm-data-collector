@@ -1,10 +1,10 @@
 {
   "weather_id": 803,
   "weather_description": "broken clouds",
-  "temp": 11.21,
-  "feels_like": 9.72,
+  "temp": 11.06,
+  "feels_like": 9.55,
   "humidity": 51,
   "wind_speed": 5.66,
   "wind_deg": 80,
-  "updated_at": "2025-1222-1548"
+  "updated_at": "2025-1222-1559"
 }
