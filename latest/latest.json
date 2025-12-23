@@ -3,8 +3,8 @@
   "weather_description": "broken clouds",
   "temp": 8.72,
   "feels_like": 6.37,
-  "humidity": 69,
+  "humidity": 68,
   "wind_speed": 4.12,
-  "wind_deg": 20,
-  "updated_at": "2025-1223-2042"
+  "wind_deg": 10,
+  "updated_at": "2025-1223-2050"
 }
