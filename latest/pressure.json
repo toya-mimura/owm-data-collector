@@ -1,25 +1,5 @@
 [
 {
-  "datetime": "2025-1225-0527",
-  "pressure": 1005
-}
-,
-{
-  "datetime": "2025-1225-0537",
-  "pressure": 1005
-}
-,
-{
-  "datetime": "2025-1225-0544",
-  "pressure": 1005
-}
-,
-{
-  "datetime": "2025-1225-0551",
-  "pressure": 1005
-}
-,
-{
   "datetime": "2025-1225-0600",
   "pressure": 1005
 }
@@ -577,5 +557,20 @@
 {
   "datetime": "2025-1226-0527",
   "pressure": 994
+}
+,
+{
+  "datetime": "2025-1226-0545",
+  "pressure": 995
+}
+,
+{
+  "datetime": "2025-1226-0551",
+  "pressure": 995
+}
+,
+{
+  "datetime": "2025-1226-0600",
+  "pressure": 995
 }
 ]
