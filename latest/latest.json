@@ -3,8 +3,8 @@
   "weather_description": "clear sky",
   "temp": 6,
   "feels_like": 6,
-  "humidity": 70,
-  "wind_speed": 1.03,
+  "humidity": 75,
+  "wind_speed": 0.51,
   "wind_deg": 0,
-  "updated_at": "2025-1230-0538"
+  "updated_at": "2025-1230-0547"
 }
