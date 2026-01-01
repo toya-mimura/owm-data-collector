@@ -1,35 +1,5 @@
 [
 {
-  "datetime": "2026-0101-0600",
-  "pressure": 1011
-}
-,
-{
-  "datetime": "2026-0101-0614",
-  "pressure": 1011
-}
-,
-{
-  "datetime": "2026-0101-0626",
-  "pressure": 1011
-}
-,
-{
-  "datetime": "2026-0101-0634",
-  "pressure": 1012
-}
-,
-{
-  "datetime": "2026-0101-0642",
-  "pressure": 1012
-}
-,
-{
-  "datetime": "2026-0101-0650",
-  "pressure": 1012
-}
-,
-{
   "datetime": "2026-0101-0700",
   "pressure": 1012
 }
@@ -551,6 +521,36 @@
 ,
 {
   "datetime": "2026-0102-0600",
+  "pressure": 1010
+}
+,
+{
+  "datetime": "2026-0102-0614",
+  "pressure": 1010
+}
+,
+{
+  "datetime": "2026-0102-0626",
+  "pressure": 1010
+}
+,
+{
+  "datetime": "2026-0102-0635",
+  "pressure": 1010
+}
+,
+{
+  "datetime": "2026-0102-0642",
+  "pressure": 1010
+}
+,
+{
+  "datetime": "2026-0102-0650",
+  "pressure": 1010
+}
+,
+{
+  "datetime": "2026-0102-0700",
   "pressure": 1010
 }
 ]
